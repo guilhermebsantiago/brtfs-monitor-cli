@@ -4,31 +4,33 @@
 #include "btrfs.h"
 #include "visual.h"
 
-#define BTRFS_PATH "/mnt/btrfs_test"
+#define DEFAULT_BTRFS_PATH "/mnt/btrfs_test"
 
-int main() {
-    printf("📂 Lendo sistema de arquivos em: %s\n\n", BTRFS_PATH);
+int main(int argc, char *argv[]) {
+    const char *mount_point = (argc > 1) ? argv[1] : DEFAULT_BTRFS_PATH;
 
-    if (!btrfs_path_exists(BTRFS_PATH)) {
-        fprintf(stderr, "⚠️  O caminho %s não existe ou não está montado.\n", BTRFS_PATH);
+    printf("📂 Lendo sistema de arquivos em: %s\n\n", mount_point);
+
+    if (!btrfs_path_exists(mount_point)) {
+        fprintf(stderr, "⚠️  O caminho %s não existe ou não está montado.\n", mount_point);
         return 1;
     }
 
-    if (!is_btrfs(BTRFS_PATH)) {
-        printf("⚠️  %s não é um sistema Btrfs. Continuando sem funcionalidades Btrfs...\n\n", BTRFS_PATH);
-        show_usage_plain(BTRFS_PATH);
+    if (!is_btrfs(mount_point)) {
+        printf("⚠️  %s não é um sistema Btrfs. Continuando sem funcionalidades Btrfs...\n\n", mount_point);
+        show_usage_plain(mount_point);
         return 0;
     }
 
     printf("✅ Sistema Btrfs detectado!\n\n");
 
-    if (has_compression(BTRFS_PATH)) {
+    if (has_compression(mount_point)) {
         printf("✨ Compressão ativada neste volume.\n");
     } else {
         printf("⚠️ Compressão não detectada.\n");
     }
 
-    if (has_raid(BTRFS_PATH)) {
+    if (has_raid(mount_point)) {
         printf("🛡️ RAID ativo neste volume.\n");
     } else {
         printf("⚠️ RAID não detectado.\n");
@@ -36,10 +38,10 @@ int main() {
     printf("\n");
 
     // Listar subvolumes e snapshots
-    list_subvolumes_and_snapshots(BTRFS_PATH);
+    list_subvolumes_and_snapshots(mount_point);
 
     // Mostrar uso do volume geral
-    show_usage_plain(BTRFS_PATH);
+    show_usage_plain(mount_point);
 
     return 0;
 }
