@@ -16,9 +16,9 @@ install -m 0755 btrfs-monitor "$BINDIR/btrfs-monitor"
 
 echo "Configuring default mount point..."
 install -d "$SYSCONFDIR/btrfs-monitor"
-printf "Enter default Btrfs mount point [/mnt/btrfs_test]: "
+printf "Enter default Btrfs mount point [/mnt/btrfs]: "
 read MP || MP=""
-MP=${MP:-/mnt/btrfs_test}
+MP=${MP:-/mnt/btrfs}
 printf "mount_point=%s\n" "$MP" > "$SYSCONFDIR/btrfs-monitor/config"
 echo "Saved to $SYSCONFDIR/btrfs-monitor/config"
 

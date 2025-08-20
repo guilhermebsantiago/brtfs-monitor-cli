@@ -79,10 +79,10 @@ Resolution order for the mount point:
 Configuration format:
 
 ```
-mount_point=/mnt/btrfs_test
+mount_point=/mnt/btrfs
 ```
 
-Fallback default if nothing is set: `/mnt/btrfs_test`.
+Fallback default if nothing is set: `/mnt/btrfs`.
 
 ---
 
@@ -134,22 +134,22 @@ What you will see:
 ```bash
 fallocate -l 2G ~/btrfs-volume.img
 sudo mkfs.btrfs ~/btrfs-volume.img
-sudo mkdir -p /mnt/btrfs_test
-sudo mount ~/btrfs-volume.img /mnt/btrfs_test
+sudo mkdir -p /mnt/btrfs
+sudo mount ~/btrfs-volume.img /mnt/btrfs
 
-sudo btrfs subvolume create /mnt/btrfs_test/@root
-sudo btrfs subvolume create /mnt/btrfs_test/@home
-sudo btrfs subvolume create /mnt/btrfs_test/@var
+sudo btrfs subvolume create /mnt/btrfs/@root
+sudo btrfs subvolume create /mnt/btrfs/@home
+sudo btrfs subvolume create /mnt/btrfs/@var
 
-sudo fallocate -l 1G /mnt/btrfs_test/@home/data.img
-sudo fallocate -l 500M /mnt/btrfs_test/@var/log.img
+sudo fallocate -l 1G /mnt/btrfs/@home/data.img
+sudo fallocate -l 500M /mnt/btrfs/@var/log.img
 ```
 
 Enable compression (zstd):
 
 ```bash
-sudo umount /mnt/btrfs_test
-sudo mount -o compress=zstd ~/btrfs-volume.img /mnt/btrfs_test
+sudo umount /mnt/btrfs
+sudo mount -o compress=zstd ~/btrfs-volume.img /mnt/btrfs
 ```
 
 Create a RAID1 demo (optional):

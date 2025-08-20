@@ -5,7 +5,7 @@
 #include "btrfs.h"
 #include "visual.h"
 
-#define DEFAULT_BTRFS_PATH "/mnt/btrfs_test"
+#define DEFAULT_BTRFS_PATH "/mnt/btrfs"
 
 static int parse_config_file_for_mount_point(const char *config_path, char *out_buffer, size_t out_buffer_size) {
     FILE *fp = fopen(config_path, "r");

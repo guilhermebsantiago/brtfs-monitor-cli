@@ -23,7 +23,7 @@ EOF
 
 make clean && make
 install -m 0755 "$APP" "$PKGROOT/usr/local/bin/$APP"
-echo "mount_point=/mnt/btrfs_test" > "$PKGROOT/etc/btrfs-monitor/config"
+echo "mount_point=/mnt/btrfs" > "$PKGROOT/etc/btrfs-monitor/config"
 
 # Ensure correct permissions for Debian policy
 chmod 0755 "$PKGROOT/DEBIAN"

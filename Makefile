@@ -27,9 +27,9 @@ install: all
 	@if [ -f "$(SYSCONFDIR)/btrfs-monitor/config" ]; then \
 		echo "Config exists at $(SYSCONFDIR)/btrfs-monitor/config"; \
 	else \
-		printf "Enter default Btrfs mount point [/mnt/btrfs_test]: "; \
+		printf "Enter default Btrfs mount point [/mnt/btrfs]: "; \
 		read MP; \
-		MP=$${MP:-/mnt/btrfs_test}; \
+		MP=$${MP:-/mnt/btrfs}; \
 		echo "mount_point=$$MP" | sudo tee $(SYSCONFDIR)/btrfs-monitor/config >/dev/null; \
 		echo "Saved default mount point to $(SYSCONFDIR)/btrfs-monitor/config"; \
 	fi
