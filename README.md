@@ -92,7 +92,8 @@ Build a Debian package locally:
 
 ```bash
 chmod +x scripts/make-deb.sh
-./scripts/make-deb.sh
+VERSION=0.1.0 ./scripts/make-deb.sh
+sha256sum dist/*.deb > dist/sha256sums.txt
 ```
 
 The package will be generated under `dist/` (e.g., `dist/btrfs-monitor_0.1.0.deb`). Install it with:
