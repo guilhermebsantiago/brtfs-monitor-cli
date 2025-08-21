@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "btrfs.h"
 #include "visual.h"
 
@@ -74,8 +77,72 @@ static const char *resolve_mount_point(int argc, char *argv[]) {
     return DEFAULT_BTRFS_PATH;
 }
 
+static int ensure_directory_exists(const char *path) {
+    if (path == NULL || path[0] == '\0') return -1;
+    if (mkdir(path, 0755) == 0) return 0;
+    if (errno == EEXIST) return 0;
+    return -1;
+}
+
+static int write_config_file(const char *config_path, const char *mount_point) {
+    if (!config_path || !mount_point) return -1;
+    char dir[PATH_MAX];
+    strncpy(dir, config_path, sizeof(dir) - 1);
+    dir[sizeof(dir) - 1] = '\0';
+    char *last_slash = strrchr(dir, '/');
+    if (last_slash) {
+        *last_slash = '\0';
+        if (ensure_directory_exists(dir) != 0) {
+            return -1;
+        }
+    }
+    FILE *fp = fopen(config_path, "w");
+    if (!fp) return -1;
+    fprintf(fp, "mount_point=%s\n", mount_point);
+    fclose(fp);
+    return 0;
+}
+
+static const char *resolve_mount_point_with_first_run_prompt(int argc, char *argv[]) {
+    const char *resolved = resolve_mount_point(argc, argv);
+    if (resolved && strcmp(resolved, DEFAULT_BTRFS_PATH) != 0) {
+        return resolved;
+    }
+    if (!isatty(STDIN_FILENO)) {
+        return resolved;
+    }
+    char input[PATH_MAX];
+    printf("Enter default Btrfs mount point [%s]: ", DEFAULT_BTRFS_PATH);
+    fflush(stdout);
+    if (!fgets(input, sizeof(input), stdin)) {
+        return resolved;
+    }
+    size_t len = strlen(input);
+    while (len > 0 && (input[len - 1] == '\n' || input[len - 1] == '\r' || input[len - 1] == ' ')) {
+        input[len - 1] = '\0';
+        len--;
+    }
+    const char *chosen = (len == 0) ? DEFAULT_BTRFS_PATH : input;
+
+    char config_path[PATH_MAX];
+    const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+    if (xdg_config_home && xdg_config_home[0] != '\0') {
+        snprintf(config_path, sizeof(config_path), "%s/btrfs-monitor/config", xdg_config_home);
+    } else {
+        const char *home = getenv("HOME");
+        if (!home || home[0] == '\0') {
+            return chosen;
+        }
+        snprintf(config_path, sizeof(config_path), "%s/.config/btrfs-monitor/config", home);
+    }
+    if (write_config_file(config_path, chosen) == 0) {
+        printf("Saved default mount point to %s\n", config_path);
+    }
+    return chosen;
+}
+
 int main(int argc, char *argv[]) {
-    const char *mount_point = resolve_mount_point(argc, argv);
+    const char *mount_point = resolve_mount_point_with_first_run_prompt(argc, argv);
 
     printf("Reading filesystem at: %s\n\n", mount_point);
 
