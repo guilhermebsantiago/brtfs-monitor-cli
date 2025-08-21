@@ -41,7 +41,6 @@ int has_compression(const char *mount_point) {
 }
 
 int has_raid(const char *mount_point) {
-    // Checa RAID via btrfs filesystem df
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "btrfs filesystem df %s 2>/dev/null", mount_point);
     FILE *fp = popen(cmd, "r");
@@ -60,7 +59,6 @@ int has_raid(const char *mount_point) {
 }
 
 void print_line_trimmed(char *line) {
-    // remove \n e espaços à direita
     int len = (int)strlen(line);
     while (len > 0 && (line[len-1] == '\n' || line[len-1] == ' ' || line[len-1] == '\r')) {
         line[len-1] = '\0';
@@ -70,29 +68,24 @@ void print_line_trimmed(char *line) {
 
 void list_subvolumes_and_snapshots(const char *mount_point) {
     char cmd[512];
-    snprintf(cmd, sizeof(cmd), "sudo btrfs subvolume list -o %s", mount_point); // -o = only top-level
+    snprintf(cmd, sizeof(cmd), "sudo btrfs subvolume list -o %s", mount_point);
 
     FILE *fp = popen(cmd, "r");
     if (!fp) {
-        perror("Erro ao listar subvolumes");
+        perror("Failed to list subvolumes");
         return;
     }
 
-    printf("📦 Subvolumes e snapshots encontrados:\n");
+    printf("📦 Subvolumes and snapshots:\n");
 
     char line[MAX_LINE];
     while (fgets(line, sizeof(line), fp)) {
         print_line_trimmed(line);
 
-        // Exemplo linha:
-        // ID 256 gen 2491 top level 5 path @home
-        // ID 257 gen 2491 top level 5 path @home_snapshot1
-
         char *p = strstr(line, "path ");
         if (!p) continue;
         p += 5;
 
-        // Determina se é snapshot ou subvolume pelo nome (heurística)
         int is_snapshot = 0;
         if (strstr(p, "snapshot") || strstr(p, "snap")) {
             is_snapshot = 1;
@@ -110,7 +103,7 @@ void list_subvolumes_and_snapshots(const char *mount_point) {
 
             total_gb = (total_blocks * block_size) / (1024 * 1024 * 1024);
             used_gb = (used_blocks * block_size) / (1024 * 1024 * 1024);
-            if (total_gb == 0) total_gb = 1; // evita div/0
+            if (total_gb == 0) total_gb = 1; 
         } else {
             total_gb = 1;
             used_gb = 0;
@@ -118,12 +111,11 @@ void list_subvolumes_and_snapshots(const char *mount_point) {
 
         int percent = (int)((used_gb * 100) / total_gb);
 
-        // Print com cor diferente para snapshot ou subvolume
         if (is_snapshot) {
-            printf("📸 Snapshot: %s - Uso: %ld GB de %ld GB\n", p, used_gb, total_gb);
+            printf("📸Snapshot: %s - Used: %ld GB of %ld GB\n", p, used_gb, total_gb);
             print_usage_bar_colored(percent, COLOR_YELLOW);
         } else {
-            printf("📁 Subvolume: %s - Uso: %ld GB de %ld GB\n", p, used_gb, total_gb);
+            printf("Subvolume: %s - Used: %ld GB of %ld GB\n", p, used_gb, total_gb);
             print_usage_bar_colored(percent, COLOR_GREEN);
         }
     }
@@ -134,7 +126,7 @@ void list_subvolumes_and_snapshots(const char *mount_point) {
 void show_usage_plain(const char *path) {
     struct statvfs sfs;
     if (statvfs(path, &sfs) != 0) {
-        perror("Erro ao ler estatísticas do sistema de arquivos");
+        perror("Failed to read filesystem statistics");
         return;
     }
 
@@ -149,6 +141,6 @@ void show_usage_plain(const char *path) {
 
     int percent = (int)((used_gb * 100) / total_gb);
 
-    printf("📊 Uso total do volume %s: %ld GB de %ld GB\n", path, used_gb, total_gb);
+    printf("📊 Total usage of %s: %ld GB of %ld GB\n", path, used_gb, total_gb);
     print_usage_bar_colored(percent, COLOR_BLUE);
 }

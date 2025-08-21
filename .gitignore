@@ -1,23 +1,18 @@
-# Binários e executáveis
+  
 btrfs-monitor
 
-# Arquivos objeto
 *.o
 
-# Arquivos temporários do editor
 *~
 *.swp
 .vscode/
 .idea/
 
-# Arquivos do sistema (MacOS)
 .DS_Store
 
-# Logs e arquivos temporários
 *.log
 *.tmp
 *.bak
 
-# Arquivos de compilação gerados automaticamente
 *.exe
 *.out
