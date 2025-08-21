@@ -1,4 +1,4 @@
-# Btrfs Monitor
+# btrfs-cli
 
 Monitor simples em C para mostrar subvolumes, snapshots, uso de espaço e características do sistema de arquivos Btrfs.
 
@@ -80,13 +80,13 @@ make
 
 ---
 
-### 5. Executar o monitor
+### 5. Executar o CLI
 
 # Caminho padrão
-sudo ./btrfs-monitor
+sudo ./btrfs-cli
 
 # Ou passando outro volume
-sudo ./btrfs-monitor /mnt/btrfs_raid
+sudo ./btrfs-cli /mnt/btrfs_raid
 
 Você verá:
 
@@ -122,6 +122,19 @@ Detectado via:
 
 - `btrfs filesystem df <ponto_de_montagem>`
 - Exibe se o volume está em modo RAID (RAID0, RAID1, RAID10, etc)
+
+---
+
+## Empacotamento (Debian/Launchpad)
+
+Para gerar um pacote `.deb` localmente:
+
+```
+sudo apt install build-essential debhelper devscripts
+debuild -us -uc
+```
+
+O binário será instalado como `btrfs-cli` em `/usr/bin/`.
 
 ---
 

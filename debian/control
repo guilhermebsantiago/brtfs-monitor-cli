@@ -1,0 +1,17 @@
+Source: btrfs-cli
+Section: utils
+Priority: optional
+Maintainer: Guilherme Beserra Santiago <guilhermebscontact@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.0
+Homepage: https://launchpad.net/btrfs-cli
+Rules-Requires-Root: no
+
+Package: btrfs-cli
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, btrfs-progs
+Description: Simple CLI to monitor Btrfs subvolumes, snapshots and usage
+ A small C program that displays Btrfs info including subvolumes, snapshots,
+ compression and RAID info, with colored bars.
+
+

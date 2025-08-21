@@ -1,0 +1,25 @@
+btrfs-cli (0.1.0-2~ppa2) noble; urgency=medium
+
+  * Rebuild for PPA (noble), fix Changed-By
+
+ -- Guilherme Beserra Santiago <guilhermebscontact@gmail.com>  Wed, 20 Aug 2025 21:40:46 -0300
+
+btrfs-cli (0.1.0-2~ppa1) noble; urgency=medium
+
+  * Rebuild for PPA (noble).
+
+ -- DESKTOP-P1Q1QFF <gui@DESKTOP-P1Q1QFF.>  Wed, 20 Aug 2025 21:39:35 -0300
+
+btrfs-cli (0.1.0-1~ppa11) noble; urgency=medium
+
+  * Build for PPA (noble).
+
+ -- Guilherme Beserra Santiago <guilhermebscontact@gmail.com>  Wed, 20 Aug 2025 21:06:39 -0300
+
+btrfs-cli (0.1.0-1) noble; urgency=medium
+
+  * Initial release.
+
+ -- Unknown Maintainer <unknown@example.invalid>  Wed, 20 Aug 2025 12:00:00 +0000
+
+
