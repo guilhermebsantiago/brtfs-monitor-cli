@@ -1,9 +1,15 @@
-btrfs-cli (0.1.0-4~ppa2) UNRELEASED; urgency=medium
+btrfs-cli (0.1.0-4~ppa3) jammy; urgency=medium
 
-Adding entry point for mount system
+  [ Guilherme Beserra Santiago ]
   * 
 
- -- DESKTOP-P1Q1QFF <gui@DESKTOP-P1Q1QFF.>  Wed, 20 Aug 2025 23:19:11 -0300
+  [ DESKTOP-P1Q1QFF ]
+  * Applied recent changes to main.c
+
+  [ Guilherme Beserra Santiago ]
+  * Applied recent changes to main.c
+
+ -- Guilherme Beserra Santiago <guilhermebscontact@gmail.com>  Wed, 20 Aug 2025 23:31:55 -0300
 
 btrfs-cli (0.1.0-4~ppa1) jammy; urgency=medium
 
