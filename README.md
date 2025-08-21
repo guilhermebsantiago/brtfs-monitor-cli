@@ -1,346 +1,180 @@
-<<<<<<< HEAD
 # btrfs-cli
 
-Monitor simples em C para mostrar subvolumes, snapshots, uso de espaço e características do sistema de arquivos Btrfs.
+Simple C CLI to display Btrfs subvolumes, snapshots, space usage, and filesystem features.
 
 ---
 
-## Objetivo
-
-Este projeto foi desenvolvido para a matéria de Sistemas Operacionais e explora:
-
-- Sistemas de arquivos modernos (Btrfs)
-- Subvolumes e snapshots
-- Compressão e RAID nativos
-- Visualização de uso de disco com barras coloridas
-- Integração com comandos do Linux e chamadas ao sistema (`statvfs`)
-
----
-
-## Requisitos
-
-- **Linux (Ubuntu no WSL2 funciona perfeitamente)**
-- **Kernel com suporte ao Btrfs** (normalmente já vem por padrão no Ubuntu)
-- **Pacotes obrigatórios**:
-
-sudo apt update
-sudo apt install gcc make btrfs-progs
-
----
-
-## Como usar
-
-### 1. Criar ambiente Btrfs (padrão)
-
-fallocate -l 2G ~/btrfs-volume.img
-sudo mkfs.btrfs ~/btrfs-volume.img
-sudo mkdir -p /mnt/btrfs_test
-sudo mount ~/btrfs-volume.img /mnt/btrfs_test
-
-sudo btrfs subvolume create /mnt/btrfs_test/@root
-sudo btrfs subvolume create /mnt/btrfs_test/@home
-sudo btrfs subvolume create /mnt/btrfs_test/@var
-
-# Criar arquivos de teste
-sudo fallocate -l 1G /mnt/btrfs_test/@home/data.img
-sudo fallocate -l 500M /mnt/btrfs_test/@var/log.img
-
----
-
-### 2. Ativar compressão (zstd)
-
-sudo umount /mnt/btrfs_test
-sudo mount -o compress=zstd ~/btrfs-volume.img /mnt/btrfs_test
-
----
-
-### 3. Criar volume Btrfs com RAID1 (opcional)
-
-fallocate -l 1G ~/btrfs-disk1.img
-fallocate -l 1G ~/btrfs-disk2.img
-
-sudo mkfs.btrfs -d raid1 -m raid1 ~/btrfs-disk1.img ~/btrfs-disk2.img
-
-# Associar os arquivos a /dev/loop
-sudo losetup -fP ~/btrfs-disk1.img
-sudo losetup -fP ~/btrfs-disk2.img
-
-# Descobrir nomes (ex: /dev/loop0 e /dev/loop1)
-losetup
-
-# Escanear e montar
-sudo btrfs device scan
-sudo mkdir -p /mnt/btrfs_raid
-sudo mount /dev/loop0 /mnt/btrfs_raid
-
----
-
-### 4. Compilar o projeto
-
-make
-
----
-
-### 5. Executar o CLI
-
-# Caminho padrão
-sudo ./btrfs-cli
-
-# Ou passando outro volume
-sudo ./btrfs-cli /mnt/btrfs_raid
-
-Você verá:
-
-- Subvolumes e snapshots com uso real e barras coloridas
-- Compressão ativada (se houver)
-- RAID detectado (RAID0, RAID1, etc)
-- Uso total do volume
-
----
-
-## Detecção do sistema operacional
-
-Este projeto utiliza:
-
-- Chamadas ao **kernel Linux** para obter estatísticas (`statvfs`)
-- Comandos de terminal (`btrfs`, `mount`) para extrair informações do sistema de arquivos
-- Acesso a arquivos especiais de `/proc/mounts` e `/sys/fs/btrfs/`
-
----
-
-## Compressão
-
-Detectada automaticamente via:
-
-- Opções de montagem (`compress=zstd`, `compress-force`, etc)
-- Presença de blocos comprimidos no volume (`btrfs filesystem df`)
-
----
-
-## RAID
-
-Detectado via:
-
-- `btrfs filesystem df <ponto_de_montagem>`
-- Exibe se o volume está em modo RAID (RAID0, RAID1, RAID10, etc)
-
----
-
-## Empacotamento (Debian/Launchpad)
-
-Para gerar um pacote `.deb` localmente:
-
-```
-sudo apt install build-essential debhelper devscripts
-debuild -us -uc
-```
-
-O binário será instalado como `btrfs-cli` em `/usr/bin/`.
-
----
-
-## Estrutura dos arquivos
-
-- `main.c`: fluxo principal
-- `btrfs.c / btrfs.h`: funções para detectar RAID, compressão, subvolumes
-- `visual.c / visual.h`: geração das barras coloridas
-- `Makefile`: compila os arquivos com `make`
-- `.gitignore`: ignora binários e temporários
-
----
-
-## Como limpar o projeto
-
-make clean
-
----
-
-## Observações
-
-- A execução requer `sudo` para acessar o volume e comandos de sistema
-- Snapshots são detectados se o nome incluir `"snapshot"` (convencionais do `snapper`, por exemplo)
-- Barras coloridas funcionam em terminais com suporte a ANSI (padrão no Ubuntu)
-
-=======
-# Btrfs Monitor CLI
-
-A small C CLI that inspects a Btrfs mount point to display subvolumes, snapshots, disk usage, and features like compression and RAID.
-
----
-
-## Features
-
-- Detects whether a path is Btrfs
-- Shows subvolumes and snapshots with colored usage bars
-- Detects compression flags
-- Detects RAID layout (best-effort parsing of `btrfs filesystem df`)
-- Configurable default mount point via flag, environment variable, or config file
-
----
-
-## License
-
-MIT License. See `LICENSE`.
+## Goal
+
+This project was built for an Operating Systems course and explores:
+
+- Modern filesystems (Btrfs)
+- Subvolumes and snapshots
+- Native compression and RAID
+- Disk usage visualization with color bars
+- Integration with Linux commands and system calls (`statvfs`)
 
 ---
 
 ## Requirements
 
-- Linux with Btrfs support
-- `btrfs-progs`
-- Build tools: `gcc`, `make`
-
-Install dependencies on Debian/Ubuntu:
+- **Linux (Ubuntu on WSL2 works great)**
+- **Kernel with Btrfs support** (Ubuntu includes it by default)
+- **Required packages**:
 
 ```bash
 sudo apt update
-sudo apt install -y gcc make btrfs-progs
+sudo apt install gcc make btrfs-progs
 ```
+
+Useful docs: `btrfs-progs` [GitHub](https://github.com/kdave/btrfs-progs), Btrfs [Wiki](https://btrfs.wiki.kernel.org/), Btrfs [Docs](https://btrfs.readthedocs.io/).
 
 ---
 
-## Build
+## How to use
 
-```bash
-make
-```
-
-This generates the binary `btrfs-monitor` in the project root.
-
----
-
-## Installation
-
-Quick install (interactive):
-
-```bash
-sudo make install
-```
-
-This will:
-- Install `btrfs-monitor` to `/usr/local/bin`
-- Ask for a default mount point and save it to `/etc/btrfs-monitor/config`
-
-Uninstall:
-
-```bash
-sudo make uninstall
-```
-
----
-
-## Configuration
-
-Resolution order for the mount point:
-
-1. CLI argument: `btrfs-monitor /path/to/mount`
-2. Environment variable: `BTRFS_MONITOR_MOUNTPOINT=/path`
-3. Config files (first found wins):
-   - `/etc/btrfs-monitor/config`
-   - `$XDG_CONFIG_HOME/btrfs-monitor/config`
-   - `$HOME/.config/btrfs-monitor/config`
-
-Configuration format:
-
-```
-mount_point=/mnt/btrfs
-```
-
-Fallback default if nothing is set: `/mnt/btrfs`.
-
----
-
-## Debian package (.deb)
-
-Build a Debian package locally:
-
-```bash
-chmod +x scripts/make-deb.sh
-VERSION=0.1.0 ./scripts/make-deb.sh
-sha256sum dist/*.deb > dist/sha256sums.txt
-```
-
-The package will be generated under `dist/` (e.g., `dist/btrfs-monitor_0.1.0.deb`). Install it with:
-
-```bash
-sudo apt install ./dist/btrfs-monitor_0.1.0.deb
-```
-
-To publish for download, attach the `.deb` to a GitHub Release and share the release URL.
-
----
-
-## Usage
-
-Run with the configured default:
-
-```bash
-sudo btrfs-monitor
-```
-
-Run on a different mount point:
-
-```bash
-sudo btrfs-monitor /mnt/btrfs_raid
-```
-
-What you will see:
-
-- Subvolumes and snapshots with colored usage bars
-- Compression status
-- RAID detection (if present)
-- Total volume usage
-
----
-
-## Create a demo Btrfs setup (optional)
+### 1) Create a Btrfs environment (single device)
 
 ```bash
 fallocate -l 2G ~/btrfs-volume.img
 sudo mkfs.btrfs ~/btrfs-volume.img
-sudo mkdir -p /mnt/btrfs
-sudo mount ~/btrfs-volume.img /mnt/btrfs
+sudo mkdir -p /mnt/btrfs_test
+sudo mount ~/btrfs-volume.img /mnt/btrfs_test
 
-sudo btrfs subvolume create /mnt/btrfs/@root
-sudo btrfs subvolume create /mnt/btrfs/@home
-sudo btrfs subvolume create /mnt/btrfs/@var
+# Create some subvolumes
+sudo btrfs subvolume create /mnt/btrfs_test/@root
+sudo btrfs subvolume create /mnt/btrfs_test/@home
+sudo btrfs subvolume create /mnt/btrfs_test/@var
 
-sudo fallocate -l 1G /mnt/btrfs/@home/data.img
-sudo fallocate -l 500M /mnt/btrfs/@var/log.img
+# Create test files
+sudo fallocate -l 1G /mnt/btrfs_test/@home/data.img
+sudo fallocate -l 500M /mnt/btrfs_test/@var/log.img
 ```
 
-Enable compression (zstd):
+References: Subvolumes and snapshots [docs](https://btrfs.readthedocs.io/en/latest/Subvolumes.html).
+
+---
+
+### 2) Enable compression (zstd)
 
 ```bash
-sudo umount /mnt/btrfs
-sudo mount -o compress=zstd ~/btrfs-volume.img /mnt/btrfs
+sudo umount /mnt/btrfs_test
+sudo mount -o compress=zstd ~/btrfs-volume.img /mnt/btrfs_test
 ```
 
-Create a RAID1 demo (optional):
+More on compression: Btrfs compression [guide](https://btrfs.readthedocs.io/en/latest/Compression.html).
+
+---
+
+### 3) Create a Btrfs RAID1 filesystem (optional)
 
 ```bash
 fallocate -l 1G ~/btrfs-disk1.img
 fallocate -l 1G ~/btrfs-disk2.img
+
 sudo mkfs.btrfs -d raid1 -m raid1 ~/btrfs-disk1.img ~/btrfs-disk2.img
+
+# Attach the image files to loop devices
 sudo losetup -fP ~/btrfs-disk1.img
 sudo losetup -fP ~/btrfs-disk2.img
+
+# Identify loop names (e.g., /dev/loop0 and /dev/loop1)
+losetup
+
+# Scan and mount
 sudo btrfs device scan
 sudo mkdir -p /mnt/btrfs_raid
 sudo mount /dev/loop0 /mnt/btrfs_raid
 ```
 
----
-
-## Project layout
-
-- `main.c`: entry point and configuration resolution
-- `btrfs.c` / `btrfs.h`: Btrfs feature detection and listing helpers
-- `visual.c` / `visual.h`: colorized progress bars
-- `Makefile`: build and install targets
+More on RAID profiles: Btrfs RAID [profiles](https://btrfs.readthedocs.io/en/latest/Administration.html#raid-profiles).
 
 ---
 
-## Clean
+### 4) Build the project
+
+```bash
+make
+```
+
+---
+
+### 5) Run the CLI
+
+```bash
+# Default mount point
+sudo ./btrfs-cli
+
+# Or pointing to another mount
+sudo ./btrfs-cli /mnt/btrfs_raid
+```
+
+You will see:
+
+- Subvolumes and snapshots (with realistic usage and color bars)
+- Compression status (if enabled)
+- RAID profile detection (RAID0, RAID1, etc.)
+- Overall filesystem usage
+
+---
+
+## How the OS/filesystem info is detected
+
+This project uses:
+
+- Linux system calls for stats (`statvfs`) — see man page: [`statvfs(3)`](https://man7.org/linux/man-pages/man3/statvfs.3.html)
+- CLI tools (`btrfs`, `mount`) to extract filesystem info — see [`btrfs` command overview](https://btrfs.readthedocs.io/en/latest/btrfs.html)
+- Special files in `/proc/mounts` and `/sys/fs/btrfs/`
+
+---
+
+## Compression
+
+Automatically detected via:
+
+- Mount options (e.g., `compress=zstd`, `compress-force`)
+- Presence of compressed data/metadata in `btrfs filesystem df`
+
+Links: `btrfs filesystem df` [reference](https://btrfs.readthedocs.io/en/latest/btrfs-filesystem.html#df), Compression [guide](https://btrfs.readthedocs.io/en/latest/Compression.html).
+
+---
+
+## RAID
+
+Detected using:
+
+- `btrfs filesystem df <mountpoint>` (shows RAID profile for data/metadata/system)
+
+Links: RAID profiles [docs](https://btrfs.readthedocs.io/en/latest/Administration.html#raid-profiles).
+
+---
+
+## Packaging (Debian/Launchpad)
+
+Build a local `.deb` package:
+
+```bash
+sudo apt install build-essential debhelper devscripts
+debuild -us -uc
+```
+
+The binary installs as `btrfs-cli` in `/usr/bin/`.
+
+Docs: `debhelper` [guide](https://www.debian.org/doc/manuals/maint-guide/), `devscripts` [package](https://tracker.debian.org/pkg/devscripts).
+
+---
+
+## Project structure
+
+- `main.c`: main program flow
+- `btrfs.c` / `btrfs.h`: functions to detect RAID, compression, subvolumes
+- `visual.c` / `visual.h`: color bar rendering
+- `Makefile`: builds with `make`
+- `.gitignore`: ignores binaries and temporary files
+
+---
+
+## Cleaning the project
 
 ```bash
 make clean
@@ -350,8 +184,19 @@ make clean
 
 ## Notes
 
-- The binary uses `sudo`-only commands (e.g., `btrfs subvolume list`) in some flows; run with privileges if you get permission errors.
-- Snapshot detection is heuristic (name contains "snapshot" or "snap").
-- ANSI color output is used; most modern terminals support it.
+- Running requires `sudo` to access mounts and system commands
+- Snapshots are detected if the name contains `"snapshot"` (common with `snapper`)
+- Color bars require an ANSI-capable terminal (default in Ubuntu)
 
->>>>>>> 3e1d7d8631993c75b7f95299e96481fffadad091
+---
+
+## Useful links
+
+- Btrfs Wiki: https://btrfs.wiki.kernel.org/
+- Btrfs Docs: https://btrfs.readthedocs.io/
+- btrfs-progs (userspace tools): https://github.com/kdave/btrfs-progs
+- `btrfs` command overview: https://btrfs.readthedocs.io/en/latest/btrfs.html
+- `btrfs filesystem` subcommands: https://btrfs.readthedocs.io/en/latest/btrfs-filesystem.html
+- Compression: https://btrfs.readthedocs.io/en/latest/Compression.html
+- RAID profiles: https://btrfs.readthedocs.io/en/latest/Administration.html#raid-profiles
+- statvfs(3) man page: https://man7.org/linux/man-pages/man3/statvfs.3.html
